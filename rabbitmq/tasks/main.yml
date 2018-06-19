@@ -1,0 +1,56 @@
+---
+# tasks file for rabbitmq
+- hosts : all
+  gather_facts: False
+
+  tasks :
+    - name: install python 2
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+    - name: Run "apt-get update" 
+      apt:
+       update_cache: yes
+
+    - name: Install the package wget
+      apt:
+       name: wget
+       state: present
+
+    - name: Download erlang repo 
+      command: wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb --directory-prefix=/tmp/
+
+    - name: Install erlang repo
+      apt:
+       deb: /tmp/erlang-solutions_1.0_all.deb
+
+    - name: Run "apt-get update"
+      apt:
+       update_cache: yes
+
+    - template:
+       src: erlang.j2
+       dest: /etc/apt/preferences.d/erlang
+
+    - name: Install erlang
+      apt:
+       name: erlang
+       state: present
+
+    - name: Download key rabbitmq 
+      command: wget https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc --directory-prefix=/tmp/
+
+    - name: add key 
+      command: apt-key add /tmp/rabbitmq-release-signing-key.asc
+
+    - name: Run "apt-get update"
+      apt:
+       update_cache: yes
+
+    - name: Install rabbitmq-server and start service
+      apt: name=rabbitmq-server state=present
+
+    - name: Start service httpd, if not running
+      service:
+       name: rabbitmq-server
+       state: started
+
