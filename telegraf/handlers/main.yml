@@ -1,0 +1,5 @@
+---
+# handlers file for telegraf
+
+  - name :  restart telegraf
+    debug: msg="This will be printed"    

@@ -1,0 +1,58 @@
+---
+# tasks file for telegraf
+
+- name: install telegraf
+  hosts: all
+  gather_facts: yes
+  remote_user: ubuntu
+  become: true
+  become_method: sudo
+  pre_tasks:
+    - name : 'install python2'
+      raw: sudo apt-get -y install python-simplejson
+
+  tasks:
+  - name: add key the InfluxData repository
+    apt_key:
+      url: https://repos.influxdata.com/influxdb.key
+      state: present
+    
+  - name : add the InfluxData repository
+    shell: source /etc/lsb-release && echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+    args:
+      executable: /bin/bash     
+
+  - name : install telegraf
+    apt:
+      name: telegraf
+      update_cache: yes
+      state: present
+  
+  - name : send file config telegraf.conf
+    template:
+      src: telegraf.conf.j2
+      dest: /etc/telegraf/telegraf.conf
+  
+  - name : send file config linux.conf
+    template:
+      src: linux.conf.j2
+      dest: /etc/telegraf/telegraf.d/linux.conf
+
+  - name : send file config docker.conf
+    template:
+      src: docker.conf.j2
+      dest: /etc/telegraf/telegraf.d/docker.conf
+
+  - name : send file config redis.conf
+    template:
+      src: redis.conf.j2
+      dest: /etc/telegraf/telegraf.d/redis.conf    
+
+  - name : replace hostname
+    replace:
+      dest: /etc/telegraf/telegraf.conf
+      regexp: \s*\"gantihost"\s*
+      replace: ' "seaotter-redis-replica-prod.{{ ansible_eth0.ipv4.address }}"\r\n'
+  
+  - name: restart service
+    service: state=restarted name=telegraf
