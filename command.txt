@@ -3,3 +3,4 @@ ansible all -m ping
 
 # command for reload nginx use user root in server
 ansible frontend -m shell -a "/usr/sbin/nginx -s reload" --become --become-user=root --ask-become-pass --become-method=su
+

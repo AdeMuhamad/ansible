@@ -1,0 +1,12 @@
+- name: install telegraf
+  hosts: all
+  gather_facts: no
+
+  tasks:
+  - name : install telegraf
+    docker_container:
+      name: sleepy
+      image: 16.04
+      state: present
+      command: sleep infinity
+

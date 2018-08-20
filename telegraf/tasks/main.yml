@@ -52,7 +52,7 @@
     replace:
       dest: /etc/telegraf/telegraf.conf
       regexp: \s*\"gantihost"\s*
-      replace: ' "seaotter-redis-replica-prod.{{ ansible_eth0.ipv4.address }}"\r\n'
+      replace: ' "seaotter-redis-primary-prod.{{ ansible_eth0.ipv4.address }}"\r\n'
   
   - name: restart service
     service: state=restarted name=telegraf
